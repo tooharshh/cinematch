@@ -1,0 +1,17 @@
+.git
+.venv
+.agents
+.codex
+.aws
+.env
+.env.*
+AGENT.md
+AGENTS.md
+agent.md
+**/__pycache__
+**/*.pyc
+.pytest_cache
+*.duckdb*
+*.log
+products
+uv.lock

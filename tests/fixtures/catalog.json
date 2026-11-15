@@ -1,0 +1,150 @@
+{
+  "movies": [
+    {
+      "id": 1,
+      "title": "Inception",
+      "overview": "dream heist subconscious dream team",
+      "original_language": "en",
+      "genre_ids": [
+        1,
+        2
+      ],
+      "release_date": "2000-01-01",
+      "popularity": 1.0,
+      "vote_average": 7.0,
+      "vote_count": 100,
+      "poster_path": null
+    },
+    {
+      "id": 2,
+      "title": "Dream Courier",
+      "overview": "dream team subconscious heist",
+      "original_language": "en",
+      "genre_ids": [
+        1,
+        2
+      ],
+      "release_date": "2001-01-01",
+      "popularity": 2.0,
+      "vote_average": 7.1,
+      "vote_count": 101,
+      "poster_path": null
+    },
+    {
+      "id": 3,
+      "title": "Moon Archive",
+      "overview": "space lunar astronaut rescue",
+      "original_language": "en",
+      "genre_ids": [
+        2
+      ],
+      "release_date": "2002-01-01",
+      "popularity": 3.0,
+      "vote_average": 7.2,
+      "vote_count": 102,
+      "poster_path": null
+    },
+    {
+      "id": 4,
+      "title": "Night Train",
+      "overview": "crime detective mystery train",
+      "original_language": "hi",
+      "genre_ids": [
+        3
+      ],
+      "release_date": "2003-01-01",
+      "popularity": 4.0,
+      "vote_average": 7.3,
+      "vote_count": 103,
+      "poster_path": null
+    },
+    {
+      "id": 5,
+      "title": "Ocean Signal",
+      "overview": "space signal rescue submarine",
+      "original_language": "ta",
+      "genre_ids": [
+        2
+      ],
+      "release_date": "2004-01-01",
+      "popularity": 5.0,
+      "vote_average": 7.4,
+      "vote_count": 104,
+      "poster_path": null
+    },
+    {
+      "id": 6,
+      "title": "Monsoon Letters",
+      "overview": "family romance letters reunion",
+      "original_language": "te",
+      "genre_ids": [
+        4
+      ],
+      "release_date": "2005-01-01",
+      "popularity": 6.0,
+      "vote_average": 7.5,
+      "vote_count": 105,
+      "poster_path": null
+    },
+    {
+      "id": 7,
+      "title": "Harbour Days",
+      "overview": "family friendship coastal village",
+      "original_language": "ml",
+      "genre_ids": [
+        4
+      ],
+      "release_date": "2006-01-01",
+      "popularity": 7.0,
+      "vote_average": 7.6,
+      "vote_count": 106,
+      "poster_path": null
+    },
+    {
+      "id": 8,
+      "title": "Echo",
+      "overview": "detective mystery crime",
+      "original_language": "hi",
+      "genre_ids": [
+        3
+      ],
+      "release_date": "2007-01-01",
+      "popularity": 8.0,
+      "vote_average": 7.7,
+      "vote_count": 107,
+      "poster_path": null
+    },
+    {
+      "id": 9,
+      "title": "Echo",
+      "overview": "family love romance",
+      "original_language": "ta",
+      "genre_ids": [
+        4
+      ],
+      "release_date": "2008-01-01",
+      "popularity": 9.0,
+      "vote_average": 7.8,
+      "vote_count": 108,
+      "poster_path": null
+    }
+  ],
+  "genres": [
+    {
+      "id": 1,
+      "name": "Thriller"
+    },
+    {
+      "id": 2,
+      "name": "Science Fiction"
+    },
+    {
+      "id": 3,
+      "name": "Mystery"
+    },
+    {
+      "id": 4,
+      "name": "Drama"
+    }
+  ]
+}

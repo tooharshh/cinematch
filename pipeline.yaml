@@ -1,0 +1,5 @@
+# Preparation explicitly creates the application table; EDA is optional analysis.
+tasks:
+  - source: etl.prepare.prepare
+    product:
+      data: movies_data.duckdb
