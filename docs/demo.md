@@ -5,7 +5,7 @@
 3. Build both targets with the README commands; show `podman images` and image inspection.
 4. Initialize live data with your key, or explicitly announce that the fixture is synthetic test data.
 5. Run `bash scripts/podman-start.sh live` (first live initialization), `fixture` (first synthetic initialization), or `existing` (already populated volume).
-6. Open the UI, search `Inception` if available, select title/year, request five recommendations and explain overview/genres/cosine similarity. Try an unavailable title and duplicate title.
+6. Open the UI and show the cinematic homepage, poster shelves and Indian-cinema collection. Search `Inception` if available and choose its poster to reveal five recommendations. Select a recommendation to continue discovery. Explain overview/genres/cosine similarity; try an unavailable title and show year/language distinctions for duplicate titles.
 7. Show `podman ps`, network inspection, volume inspection and loopback port mappings. Prove service DNS with an HTTP request from the frontend container:
 
    ```bash
