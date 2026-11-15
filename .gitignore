@@ -33,5 +33,6 @@ AGENTS.md
 *.duckdb.tmp
 .coverage
 htmlcov/
+.runtime/
 
 uv.lock
