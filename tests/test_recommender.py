@@ -83,3 +83,14 @@ def test_punctuation_search_and_original_case(tmp_path, catalog_data):
     assert catalog.search("hero's")[0]['title'] == "A Hero's Journey: Part II"
     assert catalog.recommend(" a HERO'S journey: part II ") is not None
     assert catalog.search('   ') == []
+
+
+@pytest.mark.parametrize('path', [None, '', '/poster.jpg" onerror=alert(1)', 'https://evil.test/a.jpg', '/../a.jpg'])
+def test_poster_url_rejects_missing_or_untrusted_paths(path):
+    from app.recommender import poster_url
+    assert poster_url(path) is None
+
+
+def test_poster_url_uses_public_cdn_without_key():
+    from app.recommender import poster_url
+    assert poster_url('/abc123.jpg') == 'https://image.tmdb.org/t/p/w500/abc123.jpg'

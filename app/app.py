@@ -2,7 +2,8 @@
 import json
 import logging
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Path
+from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 from .recommender import AmbiguousTitle, CatalogUnavailable, get_catalog, get_recommendation
 
@@ -45,10 +46,10 @@ def health():
 
 
 @app.get("/movies")
-def movies(query: str = Query(min_length=1, max_length=300), limit: int = Query(default=20, ge=1, le=50)):
+def movies(query: str = Query(min_length=1, max_length=300), limit: int = Query(default=20, ge=1, le=50), include_details: bool = False):
     try:
         catalog = get_catalog()
-        return {"movies": catalog.search(query, limit), "catalog_source": catalog.source}
+        return {"movies": catalog.search(query, limit, include_details=include_details), "catalog_source": catalog.source}
     except CatalogUnavailable as exc:
         raise unavailable(exc) from exc
 
@@ -66,3 +67,31 @@ def get_movie_recommendations(request: RecommendationRequest):
         raise HTTPException(
             status_code=404, detail="Movie not found in this catalog. Search available titles first.")
     return json.loads(result)
+
+
+@app.get("/discover")
+def discover():
+    try:
+        return get_catalog().discovery()
+    except CatalogUnavailable as exc:
+        raise unavailable(exc) from exc
+
+
+@app.get("/browse")
+def browse(collection: Literal["popular", "indian", "science-fiction", "thriller", "top-rated", "tamil", "malayalam", "all"] = "popular",
+           offset: int = Query(default=0, ge=0, le=100000), limit: int = Query(default=24, ge=1, le=48)):
+    try:
+        return get_catalog().browse(collection, offset, limit)
+    except CatalogUnavailable as exc:
+        raise unavailable(exc) from exc
+
+
+@app.get("/movies/{movie_id}")
+def movie_details(movie_id: int = Path(gt=0)):
+    try:
+        movie = get_catalog().movie(movie_id)
+    except CatalogUnavailable as exc:
+        raise unavailable(exc) from exc
+    if movie is None:
+        raise HTTPException(status_code=404, detail="Movie not found in this catalog")
+    return movie

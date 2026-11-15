@@ -1,5 +1,6 @@
 """Adapted from MagnusS0/movie-rec-system: cached TF-IDF and ID-safe ranking."""
 import json
+import re
 from functools import lru_cache
 from threading import RLock
 
@@ -8,6 +9,25 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from .config import database_path
 from .recommenderhelper import retrieve_and_transform_data, compute_tfidf_vectorization
+
+
+def poster_url(path):
+    """Use a bounded TMDB CDN path; never expose credentials in image URLs."""
+    if isinstance(path, str) and re.fullmatch(r"/[A-Za-z0-9]+\.(?:jpg|jpeg|png|webp)", path):
+        return "https://image.tmdb.org/t/p/w500" + path
+    return None
+
+
+COLLECTIONS = {
+    "popular": {"title": "Popular in the collection", "description": "A starting point for your next movie night."},
+    "indian": {"title": "Stories from Indian cinema", "description": "Hindi, Tamil, Telugu and Malayalam. A world of stories."},
+    "science-fiction": {"title": "Beyond the ordinary", "description": "New worlds. Big ideas. Science fiction.", "genre": "Science Fiction"},
+    "thriller": {"title": "Keep the lights on", "description": "Thrillers for a night on the edge of your seat.", "genre": "Thriller"},
+    "top-rated": {"title": "Highly rated, worth discovering", "description": "Highest catalog ratings among films with at least 500 votes."},
+    "tamil": {"title": "Spotlight on Tamil cinema", "description": "Explore stories in Tamil.", "language": "ta"},
+    "malayalam": {"title": "Malayalam, a little closer", "description": "Big stories, told differently.", "language": "ml"},
+    "all": {"title": "Find your kind of cinema", "description": "Explore the full collection, one great film at a time."},
+}
 
 
 class CatalogUnavailable(RuntimeError):
@@ -43,16 +63,57 @@ class Catalog:
             "year": date[:4] if len(date) >= 4 else None,
             "genres": str(row.genre_names), "overview": str(row.overview),
             "rating": float(row.vote_average),
+            "poster_url": poster_url(row.get("poster_path")),
+            "backdrop_url": (poster_url(row.get("backdrop_path")) or "").replace("/w500/", "/w1280/") or None,
+            "language": str(row.get("original_language") or ""),
+            "vote_count": int(row.vote_count),
         }
 
-    def search(self, query, limit=20):
+    def search(self, query, limit=20, include_details=False):
         key = normalize_title(query)
         if not key:
             return []
-        indices = [i for i, title in enumerate(self.keys) if key in title]
-        indices.sort(key=lambda i: (self.keys.iloc[i] !=
-                     key, self.keys.iloc[i], int(self.df.iloc[i].id)))
-        return [{k: v for k, v in self.details(i).items() if k in ("id", "title", "year")} for i in indices[:limit]]
+        indices = np.flatnonzero(self.keys.str.contains(key, regex=False).to_numpy())
+        titles = self.keys.iloc[indices].to_numpy()
+        ids = self.df.id.to_numpy()[indices]
+        order = np.lexsort((ids, titles, titles != key))
+        results = [self.details(int(i)) for i in indices[order][:limit]]
+        return results if include_details else [{k: v for k, v in m.items() if k in ("id", "title", "year")} for m in results]
+
+    def movie(self, movie_id):
+        indices = np.flatnonzero(self.df.id.to_numpy() == movie_id)
+        return self.details(int(indices[0])) if len(indices) else None
+
+    def browse(self, collection="popular", offset=0, limit=24):
+        if collection not in COLLECTIONS:
+            raise ValueError("Unknown collection")
+        frame = self.df
+        language = COLLECTIONS[collection].get("language")
+        genre = COLLECTIONS[collection].get("genre")
+        if language:
+            frame = frame[frame.original_language.eq(language)]
+        if collection == "indian":
+            frame = frame[frame.original_language.isin(["hi", "ta", "te", "ml"])]
+        if genre:
+            frame = frame[frame.genre_names.str.split(", ").map(lambda genres: genre in genres)]
+        if collection == "top-rated":
+            frame = frame[frame.vote_count.ge(500)].sort_values(
+                ["vote_average", "vote_count", "id"], ascending=[False, False, True])
+        else:
+            frame = frame.sort_values(["popularity", "vote_count", "id"], ascending=[False, False, True])
+        return {"collection": collection, "title": COLLECTIONS[collection]["title"],
+                "description": COLLECTIONS[collection]["description"], "total": len(frame),
+                "movies": [self.details(int(i)) for i in frame.iloc[offset:offset + limit].index]}
+
+    def discovery(self):
+        favorite = self.search("Interstellar", 10, include_details=True)
+        featured = next((m for m in favorite if normalize_title(m["title"]) == "interstellar"), None)
+        if featured is None:
+            featured = self.browse("popular", limit=1)["movies"][0]
+        keys = ["popular", "indian", "science-fiction", "thriller", "top-rated", "malayalam"]
+        shelves = [self.browse(key, limit=12) for key in keys]
+        return {"featured": featured, "shelves": [s for s in shelves if s["movies"]],
+                "total": len(self.df), "catalog_source": self.source}
 
     def recommend(self, movie, num_rec=5, movie_id=None):
         if not 1 <= num_rec <= 20:
@@ -67,9 +128,10 @@ class Catalog:
             raise AmbiguousTitle([self.details(int(i)) for i in matches])
         index = int(matches[0])
         scores = cosine_similarity(self.matrix[index], self.matrix).ravel()
-        candidates = [i for i in range(len(scores)) if i != index]
-        candidates.sort(key=lambda i: (-float(scores[i]), int(self.df.iloc[i].id)))
-        selected = candidates[:num_rec]
+        # Sort numeric arrays in NumPy instead of constructing a pandas row per candidate.
+        # Movie ID remains the deterministic tie-breaker, including identical vectors.
+        order = np.lexsort((self.df.id.to_numpy(), -scores))
+        selected = order[order != index][:num_rec].tolist()
         details = [{**self.details(i), "similarity": round(float(scores[i]), 6)} for i in selected]
         metrics = {}
         for field, name in [("popularity", "popularity"), ("vote_average", "vote_avg"), ("vote_count", "vote_count")]:
