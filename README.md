@@ -1,6 +1,6 @@
 # CineMatch
 
-A movie recommendation capstone for SRM Linux and Container Technologies. Search a movie you like and get five alternatives using **TF-IDF + cosine similarity** over overviews and genre names. Python, FastAPI, Streamlit and DuckDB; **rootless Podman only** for containers.
+A movie recommendation capstone for my Linux and Container Technologies course. Search a movie you like and get five alternatives using **TF-IDF + cosine similarity** over overviews and genre names. Python, FastAPI, Streamlit and DuckDB; **rootless Podman only** for containers.
 
 Adapted from [MagnusS0/movie-rec-system](https://github.com/MagnusS0/movie-rec-system), revision `a46de1bdd4b43e78f234b066aa085e88c0397527`. See [provenance](docs/upstream.md) and the retained [Apache-2.0 licence](LICENSE). Modified Python modules carry adaptation notices. The upstream algorithm and architecture are retained; this project adds reliable preparation, search, caching, tests and Podman operations.
 
