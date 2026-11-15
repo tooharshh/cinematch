@@ -20,8 +20,6 @@ For **real movies**, follow the [live-catalog instructions](docs/demo.md) using 
 
 ## Share a demo with Cloudflare Tunnel
 
-Current demo: [Open CineMatch](https://wellness-controlled-triumph-spectacular.trycloudflare.com)
-
 Use Cloudflare Tunnel to share the locally running application over HTTPS.
 
 With the app running and cloudflared installed:
@@ -35,17 +33,6 @@ The laptop must stay awake and online. The URL changes when the tunnel restarts,
 so previously shared links may expire.
 
 Setup and stop instructions: [Sharing guide](docs/sharing.md).
-
-## Structure and architecture
-
-- `app/`: FastAPI, configuration, cached sparse TF-IDF and cosine ranking.
-- `frontend/`: separate Poetry project and Streamlit UI.
-- `etl/`: TMDB extraction, atomic DuckDB preparation, optional EDA notebook.
-- `tests/`: offline API, ranking, extraction and UI request tests; synthetic fixtures.
-- `products/`: upstream executed notebooks kept as historical reference, not runtime data.
-- `Containerfile`: separate backend/frontend targets; `scripts/`: Podman startup.
-
-Browser → Streamlit `:8501` → `http://backend:8000` on `siw-net` → read-only DuckDB in `siw-data`. An initialization container prepares data and exits. See [architecture](docs/architecture.md).
 
 Additional documentation: [technical docs](docs/architecture.md),
 [troubleshooting](docs/troubleshooting.md), and [demo checklist](docs/demo.md).
