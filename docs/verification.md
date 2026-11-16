@@ -110,3 +110,34 @@ Added `/discover`, `/browse`, `/movies/{movie_id}`, and optional detailed search
 Funnel Display and DM Sans were downloaded from the official Google Fonts repository, their OFL licences retained, and their loaded font faces and intended roles verified in Chrome. Responsive checks passed at 375, 768, 1024 and 1440px, 844×390 landscape, 200% text enlargement and reduced-motion preference.
 
 The [attention-priority sketch](ui-attention-map.png) is generated from DOM geometry and manually assigned weights. It is explicitly not eye tracking, click data, gaze probability or evidence of engagement uplift. Method and sources are in [UI design notes](ui-design.md). No behavioral tracking was introduced.
+
+
+## Public container registry publication
+
+Date: 2026-11-16. This completes the registry step that was pending in the earlier records above.
+
+Built both Containerfile targets from application revision `e6d35ae77d0d881e14ec20d9ee33543d134b1626`
+using rootless Podman. Published both images to GitHub Container Registry with
+`0.1.0` and `latest` tags. GitHub reports both packages as **public**.
+
+| Component | Public package | Registry manifest digest (both tags) |
+|---|---|---|
+| Backend | [cinematch-backend](https://github.com/users/tooharshh/packages/container/package/cinematch-backend) | `sha256:3d0cfdfe8d5dfe554a107ebe0011bb0b8efa50790e364c9eb10b4b2a8f12e42f` |
+| Frontend | [cinematch-frontend](https://github.com/users/tooharshh/packages/container/package/cinematch-frontend) | `sha256:4f62c336ee83e049554fb98b6537f3def1b6247929ea548e2fe8b3133fe7eaea` |
+
+Verification completed:
+
+- Offline regression suite: **62 passed**, with two existing SciPy/NumPy deprecation warnings.
+- Pulled all four registry tags with an explicitly empty registry credentials file;
+  no registry login was used. All pulled manifest digests matched the pushed digests.
+- Ran the pulled versioned images in an isolated Podman network with a temporary
+  nine-movie synthetic catalog. Verified backend readiness, CineMatch API metadata,
+  five recommendations, frontend-to-backend DNS, and Streamlit health.
+- Stopped and started the frontend, then repeated the application checks successfully.
+- Inspected both running containers and confirmed they use `appuser`; inspected logs.
+- Removed the temporary test containers and network. Existing application containers
+  and persistent catalogs were not changed.
+
+The images include source, dependencies, licences and the synthetic catalog fixture.
+Private configuration, TMDB credentials and the live database are excluded.
+The README provides public image links and the Podman pull/start commands.
